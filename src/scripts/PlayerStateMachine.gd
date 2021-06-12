@@ -1,5 +1,7 @@
 extends "res://scripts/StateMachine.gd"
 
+var rootBoneOrigin = Transform()
+
 func _ready():
 	add_state("idle")
 	add_state("run")
@@ -13,7 +15,10 @@ func _state_logic(delta):
 	pass
 
 func _get_transition(delta):
-
+	
+	#rootBoneOrigin = parent.skelly.get_bone_global_pose(4)
+	#print("global: ", parent.skelly.get_bone_global_pose(4))
+	#print("  pose: ", parent.skelly.get_bone_pose((4)))
 	match state:
 		states.idle:
 			if !parent.is_on_floor():
@@ -21,7 +26,7 @@ func _get_transition(delta):
 					return states.jump
 				elif parent.velocity.y < 0:
 					return states.fall
-			elif abs(parent.velocity.x) > 0.01:
+			elif abs(parent.velocity.x) > 0.2:
 				print(state)
 				return states.run
 		states.run:
@@ -47,24 +52,25 @@ func _get_transition(delta):
 
 func _enter_state(newState, oldState):
 	var stateMachine = parent.animTree["parameters/playback"]
+
 	match newState:
 		states.idle:
-			#parent.animationPlayer.play("sc_boost_loop")
+			#parent.skelly.set_bone_pose(4, Transform.IDENTITY)
+			stateMachine.travel("sc_run_blend")
+			parent.animTree.set("parameters/sc_run_blend/blend_position", 0)
 			parent.stateLabel.text = "idle"
 		states.run:
-			#parent.animationPlayer.stop()
-			#parent.animationPlayer.play("sc_run_loop")
+			#parent.skelly.set_bone_pose(4, Transform.IDENTITY)
 			stateMachine.travel("sc_run_blend_loop")
+			parent.animTree.set("parameters/sc_run_blend/blend_position", 1)
 			parent.stateLabel.text = "run"
 		states.jump:
-			#parent.animationPlayer.stop()
-			#parent.animationPlayer.play("sc_jump_ball_loop")
+			#parent.skelly.set_bone_pose(4, Transform.IDENTITY)
 			stateMachine.travel("sc_jump_ball_loop")
 			parent.stateLabel.text = "jump"
 		states.fall:
-			#parent.animationPlayer.stop()
-			#parent.animationPlayer.play("sc_jump_fall_loop")
-			stateMachine.travel("sc_jump_fall_loop")
+			#parent.skelly.set_bone_pose(4, Transform.IDENTITY)
+			# stateMachine.travel("sc_jump_fall_loop")
 			parent.stateLabel.text = "fall"
 	pass
 
@@ -74,6 +80,13 @@ func _exit_state(oldState, newState):
 func _input(event):
 	var xAxis = Input.get_joy_axis(0, JOY_AXIS_0)
 	var yAxis = Input.get_joy_axis(0 ,JOY_AXIS_1)
+
+	if (Input.is_action_pressed("ui_right")):
+		parent.velocity.x += parent.ACCELERATION 
+		parent.velocity.x = clamp(parent.velocity.x, -parent.MAX_SPEED, parent.MAX_SPEED)
+	if (Input.is_action_pressed("ui_left")):
+		parent.velocity.x += -parent.ACCELERATION
+		parent.velocity.x = clamp(parent.velocity.x, -parent.MAX_SPEED, parent.MAX_SPEED)
 	
 	if (abs(xAxis) > parent.deadZone):
 		parent.velocity.x += parent.xAxis * parent.ACCELERATION * parent.delta
@@ -89,17 +102,5 @@ func _input(event):
 	if [states.jump, states.fall].has(state):
 		if Input.is_action_just_released("ui_up") and parent.velocity.y < -parent.JUMP_FORCE/2:
 			parent.velocity.y = parent.JUMP_FORCE/2
-		if abs(xAxis) > parent.deadZone:
+		if abs(xAxis) > parent.deadZone || Input.is_action_pressed("ui_right") || Input.is_action_pressed("ui_left"):
 			parent.velocity.x = lerp(parent.velocity.x, 0, parent.AERIAL_H_RESISTANCE)
-	#if parent.is_on_floor():
-	#	if abs(xAxis) <= parent.deadZone:
-	#		parent.velocity.x = lerp(parent.velocity.x, 0, parent.FRICTION)
-	#		parent.animationPlayer.play("Idle")
-		#if Input.is_action_just_pressed("ui_accept"):
-		#	parent.velocity.y = -parent.JUMP_FORCE
-	#else:
-	#	parent.animationPlayer.stop()
-	#	if Input.is_action_just_released("ui_accept") and parent.velocity.y < -parent.JUMP_FORCE/2:
-	#		parent.velocity.y = -parent.JUMP_FORCE/2
-	#	if abs(xAxis) > parent.deadZone:
-	#		parent.velocity.x = lerp(parent.velocity.x, 0, parent.AERIAL_H_RESISTANCE)
