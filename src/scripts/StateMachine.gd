@@ -49,4 +49,4 @@ func set_state(newState):
 
 # adds new states to the state machine	
 func add_state(state_name):
-	states[state_name] = states.size()
+	states[state_name] = state_name

@@ -1,8 +1,7 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://scenes/Player.tscn" type="PackedScene" id=1]
-[ext_resource path="res://assets/kenney_prototypetextures/PNG/Green/texture_10.png" type="Texture" id=2]
-[ext_resource path="res://assets/kenney_prototypetextures/PNG/Purple/texture_13.png" type="Texture" id=3]
+[ext_resource path="res://scenes/green_hill_zone_act_1_stage.tscn" type="PackedScene" id=4]
 
 [sub_resource type="ProceduralSky" id=1]
 
@@ -13,16 +12,6 @@ tonemap_mode = 2
 auto_exposure_enabled = true
 ss_reflections_enabled = true
 
-[sub_resource type="SpatialMaterial" id=3]
-flags_world_triplanar = true
-albedo_texture = ExtResource( 2 )
-uv1_triplanar = true
-
-[sub_resource type="SpatialMaterial" id=4]
-flags_world_triplanar = true
-albedo_texture = ExtResource( 3 )
-uv1_triplanar = true
-
 [sub_resource type="AnimationNodeStateMachinePlayback" id=5]
 
 [node name="World" type="Spatial"]
@@ -30,28 +19,19 @@ uv1_triplanar = true
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 2 )
 
-[node name="CSGCombiner" type="CSGCombiner" parent="."]
-use_collision = true
-
-[node name="CSGBox" type="CSGBox" parent="CSGCombiner"]
-width = 434.468
-height = 0.996022
-depth = 21.5452
-material = SubResource( 3 )
-
-[node name="CSGPolygon" type="CSGPolygon" parent="CSGCombiner"]
-transform = Transform( 1, -1.61338e-05, 4.01715e-05, 1.61341e-05, 1, -0.000117119, -1.00424e-05, 2.92799e-05, 4, 0, 0, 0 )
-polygon = PoolVector2Array( 0, 0, 0, 1, 2.02912, 0.491541, 1, 0 )
-material = SubResource( 4 )
-
 [node name="Player" parent="." instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.40693, 3.32779, -0.360685 )
 
-[node name="AnimationTree" parent="Player" index="5"]
+[node name="AnimationTree" parent="Player" index="6"]
 parameters/playback = SubResource( 5 )
+parameters/run/Blend/blend_position = 0
+parameters/run/TimeScale/scale = 1.0
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.299947, 0.80221, 0.516228, -0.361828, 0.596379, -0.716528, -0.882674, 0.0281346, 0.469144, 0, 2.18693, 3.68133 )
 
+[node name="Spatial" parent="." instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.6426, 0 )
+
 [editable path="Player"]
-[editable path="Player/sonic-classic-runners"]
+[editable path="Player/Mesh"]
